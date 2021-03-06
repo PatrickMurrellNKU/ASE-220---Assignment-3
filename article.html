@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title id="pageTitle"></title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body class="container">
+    <a href="/"> <--- Back to articles</a>
+    <h1 id="Title"></h1>
+    <p id="Author">Written by:</p>
+    <p id="Date">Published:</p>
+    <p id="Tags">Tags:</p>
+    <p id="Views">Views:</p>
+    <form id="LikeForm"><button type="submit">Like</button></form>
+    <p id="Likes">Likes:</p>
+    <img id="picture" src="..." width="300" />
+    <p id="Content"></p>
+
+    <script>
+      var url = window.location.href.split("/");
+      var index = url[url.length - 1];
+      $.getJSON("/API/articles", function (data) {
+        $("#pageTitle").text(data[index].Title);
+        $("#Title").text(data[index].Title);
+        $("#Author").append(data[index].Author);
+        $("#Date").append(data[index].Date);
+        $("#Content").text(data[index].Content);
+        $("#Tags").append(data[index].Tags);
+        $("#Likes").append(data[index].Likes);
+        $("#picture").attr("src", data[index].FeaturedImage);
+        //update view count
+        data[index].Views = String(Number(data[index].Views) + 1);
+        $("#Views").append(data[index].Views);
+        $.ajax({
+          type: "PUT",
+          url: "/API/articles",
+          contentType: "application/json",
+          data: JSON.stringify(data),
+          success: function (output, status, xhr) {
+            console.log(xhr);
+            console.log(xhr.getResponseHeader("Location"));
+          },
+        });
+      });
+
+      $(document).on("submit", "#LikeForm", function (e) {
+        //tell the browser to ignore the default event handler
+        e.preventDefault();
+
+        // 2. Download the JSON file from the server
+        $.getJSON("/API/articles", function (data) {
+          //update the like button
+          var url = window.location.href.split("/");
+          var index = url[url.length - 1];
+          data[index].Likes = String(Number(data[index].Likes) + 1);
+          $("#Likes").text("Likes: " + data[index].Likes);
+          //4. Update the information on the server (PUT request);
+          $.ajax({
+            type: "PUT",
+            url: "/API/articles",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function (output, status, xhr) {
+              console.log(xhr);
+              console.log(xhr.getResponseHeader("Location"));
+            },
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

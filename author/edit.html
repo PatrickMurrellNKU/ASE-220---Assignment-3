@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Edit the Article</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body class="container">
+    <a href="/private"> <-- back to Articles</a>
+    <h1>Edit Article</h1>
+    <form id="edit">
+      <label>Title</label><br />
+      <input name="Title" type="text" />
+      <br /><br />
+
+      <label>Date</label><br />
+      <input name="Date" type="text" />
+      <br /><br />
+
+      <label>Tags</label><br />
+      <input name="Tags" type="text" />
+      <br /><br />
+
+      <label>Content</label><br />
+      <textarea name="Content" rows="20" cols="30"></textarea>
+      <br /><br />
+
+      <label>Image URL</label><br />
+      <input name="FeaturedImage" type="url" />
+      <br /><br />
+
+      <label>Status</label><br />
+      <select name="Status" id="Status">
+        <option value="1">Public</option>
+        <option value="0">Private</option>
+      </select>
+      <br /><br />
+
+      <button type="submit">Submit</button>
+    </form>
+    <br />
+    <form id="delete"><button type="submit">Delete</button></form>
+    <br />
+    <script>
+      $.getJSON("/API/articles", function (data) {
+        var url = window.location.href.split("/");
+        var index = url[url.length - 1];
+        $('input[name="Date"]').val(data[index].Date);
+        $('input[name="Title"]').val(data[index].Title);
+        $('input[name="Tags"]').val(data[index].Tags);
+        $('input[name="FeaturedImage"]').val(data[index].FeaturedImage);
+        $('textarea[name="Content"]').val(data[index].Content);
+        $("#Status :selected").val(data[index].Status);
+      });
+
+      $(document).on("submit", "#delete", function (e) {
+        //tell the browser to ignore the default event handler
+        e.preventDefault();
+        $.getJSON("/API/articles", function (data) {
+          var url = window.location.href.split("/");
+          var index = url[url.length - 1];
+          console.log(data[index]);
+          $.ajax({
+            type: "DELETE",
+            url: "/API/articles",
+            contentType: "application/json",
+            data: JSON.stringify(data[index]),
+            success: function (output, status, xhr) {
+              console.log(xhr);
+              console.log(xhr.getResponseHeader("Location"));
+              window.location.href = "/private";
+            },
+          });
+        });
+      });
+
+      $(document).on("submit", "#edit", function (e) {
+        //tell the browser to ignore the default event handler
+        e.preventDefault();
+
+        var author;
+        var authorID;
+        $.getJSON("/user", function (data) {
+          author = data.firstname + " " + data.lastname;
+          authorID = data.ID;
+          var item = {
+            Date: $('input[name="Date"]').val(),
+            Title: $('input[name="Title"]').val(),
+            Author: author,
+            Content: $('textarea[name="Content"]').val(),
+            FeaturedImage: $('input[name="FeaturedImage"]').val(),
+            Tags: $('input[name="Tags"]').val(),
+            Views: "0",
+            Likes: "0",
+            Status: Number($("#Status :selected").val()),
+            AuthorID: authorID,
+          };
+          console.log(item);
+
+          // 2. Download the JSON file from the server
+          $.getJSON("/API/articles", function (data) {
+            //3. Replace the item with index=the current index
+            var url = window.location.href.split("/");
+            var index = url[url.length - 1];
+            oldViews = data[index].Views;
+            oldLikes = data[index].Likes;
+            data[index] = item;
+            data[index].Views = oldViews;
+            data[index].Likes = oldLikes;
+            //4. Update the information on the server (PUT request);
+            $.ajax({
+              type: "PUT",
+              url: "/API/articles",
+              contentType: "application/json",
+              data: JSON.stringify(data),
+              success: function (output, status, xhr) {
+                console.log(xhr);
+                console.log(xhr.getResponseHeader("Location"));
+                window.location.href = "/private";
+              },
+            });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

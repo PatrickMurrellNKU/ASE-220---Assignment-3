@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sign in</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <h1>Sign in</h1>
+    <form id="signin">
+      Email:<br />
+      <input name="email" /><br /><br />
+      Password:<br />
+      <input name="password" /><br /><br />
+      <button type="submit">Submit</button>
+      <p id="error" style="color: red"></p>
+    </form>
+    <script>
+      $(document).on("submit", "#signin", function (e) {
+        e.preventDefault();
+        var f = $(this);
+        let formData = Object.fromEntries(new FormData(f[0]));
+        console.log(formData);
+        $.ajax({
+          type: "POST",
+          url: "/API/signin",
+          contentType: "application/json",
+          data: JSON.stringify(formData),
+          success: function (output, status, requestData) {
+            if (output.status == 1) {
+              window.location.href = "/private";
+            } else {
+              $("#error").text("wrong credentials");
+            }
+          },
+        });
+        return;
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      A page that enables the restaurant manager to create new items and add
+      them to the menu
+    </title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body class="container">
+    <a href="/private"><-- back to Articles</a>
+    <h1>Create a new Article</h1>
+    <form id="create">
+      <label>Title</label><br />
+      <input name="Title" type="text" required />
+      <br /><br />
+
+      <label>Date</label><br />
+      <input name="Date" type="text" required />
+      <br /><br />
+
+      <label>Tags</label><br />
+      <input name="Tags" type="text" required />
+      <br /><br />
+
+      <label>Content</label><br />
+      <textarea name="Content" rows="20" cols="30" required></textarea>
+      <br /><br />
+
+      <label>Image URL</label><br />
+      <input name="FeaturedImage" type="url" required />
+      <br /><br />
+
+      <label>Status</label><br />
+      <select name="Status" id="Status">
+        <option value="1">Public</option>
+        <option value="0">Private</option>
+      </select>
+      <br /><br />
+
+      <button type="submit">Submit</button>
+    </form>
+    <script>
+      $(document).on("submit", "#create", function (e) {
+        //tell the browser to ignore the default event handler
+        e.preventDefault();
+        var author;
+        var authorID;
+        $.getJSON("/user", function (data) {
+          author = data.firstname + " " + data.lastname;
+          authorID = data.ID;
+          var item = {
+            Date: $('input[name="Date"]').val(),
+            Title: $('input[name="Title"]').val(),
+            Author: author,
+            Content: $('textarea[name="Content"]').val(),
+            FeaturedImage: $('input[name="FeaturedImage"]').val(),
+            Tags: $('input[name="Tags"]').val(),
+            Views: "0",
+            Likes: "0",
+            Status: Number($("#Status :selected").val()),
+            AuthorID: authorID,
+          };
+
+          // 3. make a put request to update the database
+          $.ajax({
+            type: "POST",
+            url: "/API/articles",
+            contentType: "application/json",
+            data: JSON.stringify(item),
+            success: function (output, status, xhr) {
+              console.log(xhr);
+              console.log(xhr.getResponseHeader("Location"));
+              window.location.href = "/private";
+            },
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sign Up</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <h1>Sign Up</h1>
+    <form id="signup">
+      Email:<br />
+      <input name="email" /><br /><br />
+      Password:<br />
+      <input name="password" /><br /><br />
+      Firstname:<br />
+      <input name="firstname" /><br /><br />
+      Lastname:<br />
+      <input name="lastname" /><br /><br />
+      <button type="submit">Submit</button>
+      <p id="error" style="color: red"></p>
+    </form>
+    <script>
+      $(document).on("submit", "#signup", function (e) {
+        e.preventDefault();
+        var f = $(this);
+        let formData = Object.fromEntries(new FormData(f[0]));
+        console.log(formData);
+
+        //tell the browser to ignore the default event handler
+        e.preventDefault();
+
+        var item = {
+          email: $('input[name="email"]').val(),
+          password: $('input[name="password"]').val(),
+          firstname: $('input[name="firstname"]').val(),
+          lastname: $('input[name="lastname"]').val(),
+          role: 0,
+        };
+
+        if (item.email && item.password && item.firstname && item.lastname) {
+          console.log("submitting form");
+          $.ajax({
+            type: "POST",
+            url: "/accounts",
+            contentType: "application/json",
+            data: JSON.stringify(item),
+            success: function (output, status, xhr) {
+              console.log(output.status);
+              if (!output.status) {
+                window.location.href = "/";
+              } else {
+                $("#error").text("This email is already in use");
+                console.log(xhr);
+                console.log(xhr.getResponseHeader("Location"));
+              }
+            },
+          });
+        } else {
+          $("#error").text("Please fill out the entire form");
+        }
+      });
+    </script>
+  </body>
+</html>

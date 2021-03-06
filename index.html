@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Patrick Murrell's Blog</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body class="container">
+    <h1>Hello, and welcome to my Blog!</h1>
+    <ul id="blogpost"></ul>
+    <script>
+      $.getJSON("/API/articles", function (data) {
+        for (var i = 0; i < data.length; i++) {
+          if (data[i].Status == 1)
+            $("#blogpost").append(
+              '<li style="list-style-type: none;"><a href="/article/' +
+                i +
+                '"><img src="' +
+                data[i].FeaturedImage +
+                '"" width=75px>   <strong>' +
+                data[i].Title +
+                "</strong>  " +
+                data[i].Author +
+                " - <em>" +
+                data[i].Date +
+                "</em></a></li><br>"
+            );
+        }
+      });
+    </script>
+    <a href="/signin">Sign in</a>&nbsp;&nbsp;&nbsp;<a href="/signup">Sign up</a>
+  </body>
+</html>

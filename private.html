@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Patrick Murrell's Blog</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body class="container">
+    <h1>Hello, and welcome to my Blog!</h1>
+    <ul id="blogpost"></ul>
+    <script>
+      $.getJSON("/user", function (data) {
+        var authorID = data.ID;
+        var role = data.role;
+        $.getJSON("/API/articles", function (data) {
+          if (role != 1) {
+            for (var i = 0; i < data.length; i++) {
+              //give edit access to personal articles
+              if (data[i].AuthorID == authorID)
+                $("#blogpost").append(
+                  '<li style="list-style-type: none;"><a href="/article/' +
+                    i +
+                    '"><img src="' +
+                    data[i].FeaturedImage +
+                    '"" width=75px>   <strong>' +
+                    data[i].Title +
+                    "</strong>  " +
+                    data[i].Author +
+                    " - <em>" +
+                    data[i].Date +
+                    '</em></a> [<a href="/edit/' +
+                    i +
+                    '">edit</a>]</li><br>'
+                );
+              //show all public articles
+              else if (data[i].Status == 1)
+                $("#blogpost").append(
+                  '<li style="list-style-type: none;"><a href="/article/' +
+                    i +
+                    '"><img src="' +
+                    data[i].FeaturedImage +
+                    '"" width=75px>   <strong>' +
+                    data[i].Title +
+                    "</strong>  " +
+                    data[i].Author +
+                    " - <em>" +
+                    data[i].Date +
+                    "</em></a></li><br>"
+                );
+            }
+          } else {
+            //show all articles and offer edit privledges
+            for (var i = 0; i < data.length; i++) {
+              $("#blogpost").append(
+                '<li style="list-style-type: none;"><a href="/article/' +
+                  i +
+                  '"><img src="' +
+                  data[i].FeaturedImage +
+                  '"" width=75px>   <strong>' +
+                  data[i].Title +
+                  "</strong>  " +
+                  data[i].Author +
+                  " - <em>" +
+                  data[i].Date +
+                  '</em></a> [<a href="/edit/' +
+                  i +
+                  '">edit</a>]</li><br>'
+              );
+            }
+          }
+        });
+      });
+    </script>
+    <a href="/signout">Sign out</a>&nbsp;&nbsp;&nbsp;
+    <a href="/create">create an article</a>&nbsp;&nbsp;&nbsp;
+  </body>
+</html>
